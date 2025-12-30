@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Profile</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h2>Profile</h2>
+
+    <nav>
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./courses.html">Browse Courses</a>
+      <a href="./my-courses.html">My Enrollments</a>
+      <button class="small" type="button" onclick="logout()">Logout</button>
+    </nav>
+
+    <hr />
+
+    <div id="info" class="card">Loading...</div>
+
+    <h3>Update Profile</h3>
+    <form id="profileForm">
+      <input id="name" placeholder="Name" />
+      <input id="bio" placeholder="Bio" />
+      <input id="avatar_url" placeholder="Avatar URL" />
+      <button type="submit">Update</button>
+    </form>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/guards.js"></script>
+
+    <script>
+      const infoEl = document.getElementById("info");
+
+      function esc(v) {
+        return String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      async function loadProfile() {
+        const data = await api("/api/student/profile");
+        const p = data.profile;
+
+        infoEl.innerHTML = `
+          <p><b>Name:</b> ${esc(p.name)}</p>
+          <p><b>Email:</b> ${esc(p.email)}</p>
+          <p><b>Bio:</b> ${esc(p.bio ?? "")}</p>
+          <p><b>Avatar:</b> ${esc(p.avatar_url ?? "")}</p>
+        `;
+
+        document.getElementById("name").value = p.name || "";
+        document.getElementById("bio").value = p.bio || "";
+        document.getElementById("avatar_url").value = p.avatar_url || "";
+      }
+
+      document.getElementById("profileForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+          const payload = {
+            name: document.getElementById("name").value.trim(),
+            bio: document.getElementById("bio").value.trim(),
+            avatar_url: document.getElementById("avatar_url").value.trim()
+          };
+
+          Object.keys(payload).forEach(k => payload[k] === "" && delete payload[k]);
+
+          const data = await api("/api/student/profile", { method: "PUT", body: payload });
+          alert(data.message || "Updated");
+          await loadProfile();
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+
+      (async () => {
+        await requireRole("student");
+        await loadProfile();
+      })().catch(e => alert(e.message));
+    </script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Course</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <nav>
+      <a href="./courses.html">← Back</a>
+      <button class="small" type="button" onclick="logout()">Logout</button>
+    </nav>
+
+    <h2 id="title">Loading...</h2>
+    <p id="meta"></p>
+    <p id="desc"></p>
+
+    <button id="enrollBtn" type="button">Enroll</button>
+
+    <hr />
+
+    <h3>Lessons</h3>
+    <div id="lessons"></div>
+
+    <hr />
+
+    <h3>Reviews</h3>
+    <div id="reviews"></div>
+
+    <h4>Add Review</h4>
+    <form id="reviewForm">
+      <input id="rating" type="number" min="1" max="5" placeholder="Rating 1-5" required />
+      <input id="comment" type="text" placeholder="Comment (optional)" />
+      <button type="submit">Submit</button>
+    </form>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/guards.js"></script>
+
+    <script>
+      const courseId = new URLSearchParams(location.search).get("id");
+
+      const titleEl = document.getElementById("title");
+      const metaEl = document.getElementById("meta");
+      const descEl = document.getElementById("desc");
+      const lessonsEl = document.getElementById("lessons");
+      const reviewsEl = document.getElementById("reviews");
+      const enrollBtn = document.getElementById("enrollBtn");
+
+      function esc(v) {
+        return String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      async function loadCourse() {
+        const data = await api(`/api/student/courses/${courseId}`);
+        const c = data.course;
+
+        titleEl.textContent = c.title;
+        metaEl.textContent = `${c.level} | ${c.category_name} | ${c.instructor_name}`;
+        descEl.textContent = c.description || "";
+
+        renderReviews(data.reviews || [], data.rating);
+      }
+
+      function renderReviews(reviews, ratingObj) {
+        const avg = ratingObj?.avg_rating ?? "0.00";
+        const count = ratingObj?.review_count ?? "0";
+
+        if (reviews.length === 0) {
+          reviewsEl.innerHTML = `
+            <div class="card">
+              <p><b>Avg:</b> ${esc(avg)} (${esc(count)} reviews)</p>
+              <p>No reviews yet.</p>
+            </div>
+          `;
+          return;
+        }
+
+        reviewsEl.innerHTML = `
+          <div class="card">
+            <p><b>Avg:</b> ${esc(avg)} (${esc(count)} reviews)</p>
+          </div>
+          ${reviews.map(r => `
+            <div class="card">
+              <b>${esc(r.user_name)}</b> — ${esc(r.rating)}/5<br/>
+              ${esc(r.comment || "")}<br/>
+              <small>${new Date(r.created_at).toLocaleString()}</small>
+            </div>
+          `).join("")}
+        `;
+      }
+
+      async function tryLoadLessons() {
+        try {
+          const data = await api(`/api/student/courses/${courseId}/lessons`);
+          const lessons = data.lessons || [];
+
+          if (lessons.length === 0) {
+            lessonsEl.innerHTML = `<div class="card"><p>No lessons found.</p></div>`;
+            return;
+          }
+
+          lessonsEl.innerHTML = lessons.map(l => `
+            <div class="card">
+              <b>${esc(l.order_index)}. ${esc(l.title)}</b>
+                ${l.is_completed ? "<span class='status-approved'> (Completed)</span>" : "<span class='status-pending'> (Not completed)</span>"}
+
+              <div><small>${esc(l.description || "")}</small></div>
+              <a target="_blank" rel="noopener" href="${l.video_url}">Open video</a>
+            </div>
+          `).join("");
+        } catch (e) {
+          lessonsEl.innerHTML = `<div class="card"><p>${esc(e.message)}</p></div>`;
+        }
+      }
+
+      enrollBtn.addEventListener("click", async () => {
+        try {
+          await api(`/api/student/courses/${courseId}/enroll`, { method: "POST" });
+          alert("Enrolled!");
+          await tryLoadLessons();
+        } catch (e) {
+          alert(e.message);
+        }
+      });
+
+      document.getElementById("reviewForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+          await api(`/api/student/courses/${courseId}/reviews`, {
+            method: "POST",
+            body: {
+              rating: Number(document.getElementById("rating").value),
+              comment: document.getElementById("comment").value.trim()
+            }
+          });
+          alert("Review added!");
+          await loadCourse();
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+
+      (async () => {
+        await requireRole("student");
+        await loadCourse();
+        await tryLoadLessons(); // shows message if not enrolled
+      })().catch(e => alert(e.message));
+    </script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <h2>Admin Dashboard</h2>
+
+      <nav>
+        <a href="./users.html">Users</a>
+        <a href="./courses.html">Courses</a>
+        <a href="./reports.html">Reports</a>
+        <button class="small" type="button" onclick="logout()">Logout</button>
+      </nav>
+
+      <hr />
+
+      <div id="stats" class="card">Loading...</div>
+
+      <script src="../assets/js/config.js"></script>
+      <script src="../assets/js/api.js"></script>
+      <script src="../assets/js/auth.js"></script>
+      <script src="../assets/js/guards.js"></script>
+
+      <script>
+        (async () => {
+          await requireRole("admin");
+
+          const data = await api("/api/admin/dashboard");
+
+          document.getElementById("stats").innerHTML = `
+          <h3>System Overview</h3>
+          <div class="grid">
+            <div class="card"><b>Total Users:</b> ${data.stats.total_users}</div>
+            <div class="card"><b>Total Courses:</b> ${data.stats.total_courses}</div>
+            <div class="card"><b>Total Enrollments:</b> ${data.stats.total_enrollments}</div>
+            <div class="card"><b>Total Reviews:</b> ${data.stats.total_reviews}</div>
+            <div class="card"><b>Total Instructors:</b> ${data.stats.total_instructors}</div>
+             </div>`;
+        })().catch((e) => alert(e.message));
+      </script>
+    </div>
+  </body>
+</html>

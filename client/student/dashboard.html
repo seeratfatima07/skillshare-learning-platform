@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h2>Student Dashboard</h2>
+
+    <nav>
+      <a href="./courses.html">Browse Courses</a>
+      <a href="./my-courses.html">My Enrollments</a>
+      <a href="./profile.html">Profile</a>
+      <button class="small" type="button" onclick="logout()">Logout</button>
+    </nav>
+
+    <hr />
+
+    <h3>My Summary</h3>
+    <div id="summary" class="card">Loading...</div>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/guards.js"></script>
+
+    <script>
+      const summaryEl = document.getElementById("summary");
+
+      function esc(v) {
+        return String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      (async () => {
+        await requireRole("student");
+
+        const data = await api("/api/student/me/summary");
+        const enrolled = data.enrolledCourses || [];
+        const reviews = data.myReviews || [];
+
+        const recent = enrolled.slice(0, 5);
+
+        summaryEl.innerHTML = `
+          <p><b>Enrolled Courses:</b> ${enrolled.length}</p>
+          <p><b>My Reviews:</b> ${reviews.length}</p>
+
+          <hr />
+
+          <h4>Recent Enrollments</h4>
+
+          ${
+            recent.length === 0
+              ? `<div class="card"><p>No enrollments yet.</p></div>`
+              : recent.map(e => `
+                  <div class="card">
+                    <b>${esc(e.title)}</b> (${esc(e.level)})<br/>
+                    ${esc(e.category_name)} — ${esc(e.instructor_name)}<br/><br/>
+                    <a href="./course.html?id=${encodeURIComponent(e.course_id)}">Open Course →</a>
+                  </div>
+                `).join("")
+          }
+        `;
+      })().catch(e => alert(e.message));
+    </script>
+  </div>
+</body>
+</html>

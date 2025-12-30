@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin - Reports</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h2>Reports</h2>
+
+    <nav>
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./users.html">Users</a>
+      <a href="./courses.html">Courses</a>
+      <button class="small" type="button" onclick="logout()">Logout</button>
+    </nav>
+
+    <hr />
+
+    <div id="list">Loading...</div>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/guards.js"></script>
+
+    <script>
+      const listEl = document.getElementById("list");
+
+      function esc(v) {
+        return String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function statusClass(status) {
+        if (status === "resolved") return "status-approved";   // green
+        if (status === "open") return "status-pending";        // orange
+        return "";
+      }
+
+      async function loadReports() {
+        const data = await api("/api/admin/reports");
+        const reports = data.reports || [];
+
+        if (reports.length === 0) {
+          listEl.innerHTML = `<div class="card"><p>No reports found.</p></div>`;
+          return;
+        }
+
+        listEl.innerHTML = reports.map(r => `
+          <div class="card">
+            <b>Report #${esc(r.id)}</b>
+            — Status: <span class="${statusClass(r.status)}">${esc(r.status)}</span><br/>
+
+            Target: ${esc(r.target_type)} (ID: ${esc(r.target_id)})<br/>
+            Reason: ${esc(r.reason)}<br/>
+            Reporter: ${esc(r.reporter_name || "—")}<br/><br/>
+
+            <button class="small" type="button" onclick="resolveReport(${r.id})">Resolve</button>
+          </div>
+        `).join("");
+      }
+
+      async function resolveReport(id) {
+        await api(`/api/admin/reports/${id}/resolve`, { method: "PUT" });
+        alert("Resolved");
+        loadReports();
+      }
+
+      window.resolveReport = resolveReport;
+
+      (async () => {
+        await requireRole("admin");
+        await loadReports();
+      })().catch(e => alert(e.message));
+    </script>
+  </div>
+</body>
+</html>

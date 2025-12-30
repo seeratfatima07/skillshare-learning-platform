@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Signup</title>
+  <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+  <div class="container">
+  <h2>Signup</h2>
+
+  <form id="signupForm">
+    <input id="name" type="text" placeholder="Name" required />
+    <input id="email" type="email" placeholder="Email" required />
+    <input id="password" type="password" placeholder="Password" required />
+
+    <select id="role" required>
+      <option value="student">Student</option>
+      <option value="instructor">Instructor</option>
+    </select>
+
+    <button type="submit">Create Account</button>
+  </form>
+
+  <p><a href="./login.html">Go to login</a></p>
+
+  <script src="./assets/js/config.js"></script>
+  <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/auth.js"></script>
+
+  <script>
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        const data = await signup({
+          name: document.getElementById("name").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          password: document.getElementById("password").value,
+          role: document.getElementById("role").value
+        });
+
+        // backend returns token + user on signup (like your screenshot)
+        localStorage.setItem("token", data.token);
+
+        alert("Signup successful!");
+        location.href = "./login.html";
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+  </script>
+  </div>
+</body>
+</html>

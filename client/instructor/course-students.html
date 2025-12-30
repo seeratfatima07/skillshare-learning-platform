@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Course Students</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <nav>
+      <a href="./courses.html">← Back</a>
+      <button class="small" type="button" onclick="logout()">Logout</button>
+    </nav>
+
+    <h2>Enrolled Students</h2>
+
+    <div id="list">Loading...</div>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/guards.js"></script>
+
+    <script>
+      const courseId = new URLSearchParams(location.search).get("id");
+      const listEl = document.getElementById("list");
+
+      function esc(v) {
+        return String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      (async () => {
+        await requireRole("instructor");
+
+        const data = await api(`/api/instructor/courses/${courseId}/students`);
+        const students = data.students || [];
+
+        if (students.length === 0) {
+          listEl.innerHTML = `<div class="card"><p>No students yet.</p></div>`;
+          return;
+        }
+
+        listEl.innerHTML = students.map(s => `
+          <div class="card">
+            <b>${esc(s.student_name)}</b><br/>
+            ${esc(s.student_email)}<br/>
+            <small>Enrolled: ${new Date(s.enrolled_at).toLocaleString()}</small>
+          </div>
+        `).join("");
+      })().catch(e => alert(e.message));
+    </script>
+  </div>
+</body>
+</html>

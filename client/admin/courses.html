@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin - Courses</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h2>Courses</h2>
+
+    <nav>
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./users.html">Users</a>
+      <a href="./reports.html">Reports</a>
+      <button class="small" type="button" onclick="logout()">Logout</button>
+    </nav>
+
+    <hr />
+
+    <div id="list">Loading...</div>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/guards.js"></script>
+
+    <script>
+      const listEl = document.getElementById("list");
+
+      function esc(v) {
+        return String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function statusClass(status) {
+        if (status === "approved") return "status-approved";
+        if (status === "pending") return "status-pending";
+        if (status === "rejected") return "status-rejected";
+        return "";
+      }
+
+      async function loadCourses() {
+        const data = await api("/api/admin/courses");
+        const courses = data.courses || [];
+
+        if (courses.length === 0) {
+          listEl.innerHTML = `<div class="card"><p>No courses found.</p></div>`;
+          return;
+        }
+
+        listEl.innerHTML = courses.map(c => `
+          <div class="card">
+            <b>${esc(c.title)}</b><br/>
+
+            Status:
+            <span class="${statusClass(c.status)}">${esc(c.status)}</span>
+            &nbsp;|&nbsp;
+            Active: <b>${esc(c.is_active)}</b><br/>
+
+            Instructor: ${esc(c.instructor_name || "—")}<br/><br/>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="small" type="button" onclick="activateCourse(${c.id})">Approve/Activate</button>
+              <button class="small" type="button" onclick="rejectCourse(${c.id})">Reject</button>
+              <button class="small" type="button" onclick="deactivateCourse(${c.id})">Deactivate</button>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      async function activateCourse(id) {
+        await api(`/api/admin/courses/${id}/activate`, { method: "PUT" });
+        alert("Activated");
+        loadCourses();
+      }
+
+      async function rejectCourse(id) {
+        await api(`/api/admin/courses/${id}/reject`, { method: "PUT" });
+        alert("Rejected");
+        loadCourses();
+      }
+
+      async function deactivateCourse(id) {
+        await api(`/api/admin/courses/${id}/deactivate`, { method: "PUT" });
+        alert("Deactivated");
+        loadCourses();
+      }
+
+      // expose for onclick
+      window.activateCourse = activateCourse;
+      window.rejectCourse = rejectCourse;
+      window.deactivateCourse = deactivateCourse;
+
+      (async () => {
+        await requireRole("admin");
+        await loadCourses();
+      })().catch(e => alert(e.message));
+    </script>
+  </div>
+</body>
+</html>

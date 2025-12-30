@@ -1,0 +1,357 @@
+/* ================= RESET ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+/* ================= PAGE BACKGROUND ================= */
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e8f0ff, #f9fafb);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #1f2937;
+}
+
+/* ================= MAIN CONTAINER ================= */
+.container {
+  width: 100%;
+  max-width: 1000px;
+  background: #ffffff;
+  padding: 30px 35px;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* ================= HEADINGS ================= */
+h1, h2, h3, h4 {
+  text-align: center;
+  margin-bottom: 18px;
+  color: #111827;
+}
+
+h2 {
+  font-size: 26px;
+}
+
+h3 {
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+/* ================= NAVIGATION ================= */
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+nav a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #2563eb;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+nav a:hover {
+  background: #e0e7ff;
+}
+
+/* ================= FORMS ================= */
+form {
+  max-width: 420px;
+  margin: 0 auto 25px auto;
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+input, select {
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 14px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* ================= BUTTONS ================= */
+button {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: #1e40af;
+}
+
+/* small buttons (admin/instructor actions) */
+button.small {
+  width: auto;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* ================= CARDS ================= */
+.card,
+.list-item {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.card b,
+.list-item b {
+  font-size: 15px;
+}
+
+/* ================= TEXT & META ================= */
+small {
+  color: #6b7280;
+}
+
+/* ================= STATUS COLORS ================= */
+.status-approved {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.status-pending {
+  color: #d97706;
+  font-weight: 600;
+}
+
+.status-rejected {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* ================= LINKS ================= */
+a {
+  color: #2563eb;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ================= DIVIDERS ================= */
+hr {
+  margin: 25px 0;
+  border: none;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* ===== Base ===== */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: linear-gradient(180deg, #eef4ff, #f8fbff);
+  color: #111827;
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* ===== Navigation ===== */
+nav {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+nav a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Buttons ===== */
+button,
+button.small {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+/* ===== Cards (UPDATED) ===== */
+.card {
+  background: #f9fbff;                 /* light highlight */
+  border: 2px solid #c7d2fe;            /* darker border */
+  border-radius: 12px;
+  padding: 18px;
+  margin: 16px 0;
+  transition: all 0.25s ease;
+}
+
+/* Hover effect */
+.card:hover {
+  background: #eef2ff;                 /* stronger highlight */
+  border-color: #6366f1;               /* indigo border */
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(99,102,241,0.18);
+}
+
+/* ===== Course title emphasis ===== */
+.card b {
+  font-size: 16px;
+  color: #111827;
+}
+
+/* ===== Status colors ===== */
+.status-approved {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.status-pending {
+  color: #ea580c;
+  font-weight: 600;
+}
+
+.status-rejected {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* ===== Forms ===== */
+input {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* ===== Links inside cards ===== */
+.card a {
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.card a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Headings ===== */
+h2, h3, h4 {
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* ===== Landing Page ===== */
+body.landing {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    linear-gradient(
+      rgba(255,255,255,0.85),
+      rgba(255,255,255,0.85)
+    ),
+    url("https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+.landing-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.landing-card {
+  width: min(720px, 92vw);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 36px 40px;
+  text-align: center;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+}
+
+.landing-card h1 {
+  margin-bottom: 8px;
+}
+
+.tagline {
+  margin-bottom: 22px;
+  color: #374151;
+}
+
+/* Buttons */
+.cta {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+a.btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: #eef2ff;
+  color: #1d4ed8;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid #c7d2fe;
+}
+
+a.btn.primary {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+a.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(37,99,235,0.25);
+}
+

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Instructor Dashboard</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h2>Instructor Dashboard</h2>
+
+    <nav>
+      <a href="./courses.html">My Courses</a>
+      <a href="./course-edit.html">Create Course</a>
+      <button class="small" type="button" onclick="logout()">Logout</button>
+    </nav>
+
+    <hr />
+
+    <div id="box" class="card">Loading...</div>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/guards.js"></script>
+
+    <script>
+      const box = document.getElementById("box");
+
+      (async () => {
+        await requireRole("instructor");
+
+        const data = await api("/api/instructor/courses");
+        const courses = data.courses || [];
+
+        const pending = courses.filter(c => c.status === "pending").length;
+        const approved = courses.filter(c => c.status === "approved").length;
+
+        box.innerHTML = `
+          <h3>Overview</h3>
+          <p><b>Total Courses:</b> ${courses.length}</p>
+          <p>
+            <b class="status-approved">Approved:</b> ${approved}
+            &nbsp;|&nbsp;
+            <b class="status-pending">Pending:</b> ${pending}
+          </p>
+          <p>
+            <a href="./courses.html">Open My Courses →</a>
+          </p>
+        `;
+      })().catch(e => alert(e.message));
+    </script>
+  </div>
+</body>
+</html>

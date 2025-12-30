@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin - Users</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h2>Users</h2>
+
+    <nav>
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./courses.html">Courses</a>
+      <a href="./reports.html">Reports</a>
+      <button class="small" type="button" onclick="logout()">Logout</button>
+    </nav>
+
+    <hr />
+
+    <div id="list">Loading...</div>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/guards.js"></script>
+
+    <script>
+      const listEl = document.getElementById("list");
+
+      function esc(v) {
+        return String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      async function loadUsers() {
+        const data = await api("/api/admin/users");
+        const users = data.users || [];
+
+        if (users.length === 0) {
+          listEl.innerHTML = `<div class="card"><p>No users found.</p></div>`;
+          return;
+        }
+
+        listEl.innerHTML = users.map(u => `
+          <div class="card">
+            <b>${esc(u.name)}</b> (${esc(u.role)})<br/>
+            ${esc(u.email)}<br/>
+            Blocked:
+            <b class="${u.is_blocked ? 'status-rejected' : 'status-approved'}">
+              ${u.is_blocked}
+            </b>
+            <br/><br/>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="small" type="button" onclick="blockUser(${u.id})">Block</button>
+              <button class="small" type="button" onclick="unblockUser(${u.id})">Unblock</button>
+              <button class="small" type="button" onclick="warnUser(${u.id})">Warn</button>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      async function blockUser(id) {
+        await api(`/api/admin/users/${id}/block`, { method: "PUT" });
+        alert("User blocked");
+        loadUsers();
+      }
+
+      async function unblockUser(id) {
+        await api(`/api/admin/users/${id}/unblock`, { method: "PUT" });
+        alert("User unblocked");
+        loadUsers();
+      }
+
+      async function warnUser(id) {
+        await api(`/api/admin/users/${id}/warn`, { method: "PUT" });
+        alert("User warned");
+        loadUsers();
+      }
+
+      window.blockUser = blockUser;
+      window.unblockUser = unblockUser;
+      window.warnUser = warnUser;
+
+      (async () => {
+        await requireRole("admin");
+        await loadUsers();
+      })().catch(e => alert(e.message));
+    </script>
+  </div>
+</body>
+</html>

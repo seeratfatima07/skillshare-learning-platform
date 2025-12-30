@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create/Edit Course</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h2 id="pageTitle">Create Course</h2>
+
+    <nav>
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./courses.html">My Courses</a>
+      <button class="small" type="button" onclick="logout()">Logout</button>
+    </nav>
+
+    <hr />
+
+    <form id="courseForm">
+      <input id="title" placeholder="Title" required />
+      <input id="description" placeholder="Description" required />
+      <input id="category_id" type="number" placeholder="Category ID (e.g. 4)" required />
+      <input id="level" placeholder="Level (Beginner/Intermediate/Advanced)" required />
+      <button type="submit" id="saveBtn">Save Course</button>
+    </form>
+
+    <hr />
+
+    <h3>Add Lesson (for this course)</h3>
+    <div id="courseIdText" class="card">Create course first to get Course ID.</div>
+
+    <form id="lessonForm">
+      <input id="lessonTitle" placeholder="Lesson title" required />
+      <input id="lessonDesc" placeholder="Lesson description (optional)" />
+      <input id="videoUrl" placeholder="Video URL" required />
+      <input id="orderIndex" type="number" placeholder="Order index (1,2,3...)" required />
+      <button type="submit">Add Lesson</button>
+    </form>
+
+    <div id="lessonsBox"></div>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/guards.js"></script>
+
+    <script>
+      const courseId = new URLSearchParams(location.search).get("id");
+      const lessonsBox = document.getElementById("lessonsBox");
+      const courseIdText = document.getElementById("courseIdText");
+
+      function esc(v) {
+        return String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function setCourseIdUI(id) {
+        courseIdText.innerHTML = id
+          ? `<b>Course ID:</b> ${esc(id)}`
+          : `Create course first to get Course ID.`;
+      }
+
+      async function loadLessons() {
+        if (!courseId) {
+          lessonsBox.innerHTML = "";
+          return;
+        }
+
+        // clear the old 404/message before trying again
+        lessonsBox.innerHTML = "";
+
+        try {
+          // You don't have a GET route for lessons in instructor.controller/routes.
+          // So DON'T call it. Just show nothing.
+          // const data = await api(`/api/instructor/courses/${courseId}/lessons`);
+
+          lessonsBox.innerHTML = ""; // no 404 card shown
+        } catch (e) {
+          // don't show 404 in UI
+          lessonsBox.innerHTML = "";
+        }
+      }
+
+      async function deleteLesson(lessonId) {
+        if (!confirm("Delete lesson?")) return;
+        try {
+          await api(`/api/instructor/lessons/${lessonId}`, { method: "DELETE" });
+          alert("Deleted");
+          loadLessons();
+        } catch (e) {
+          alert(e.message);
+        }
+      }
+      window.deleteLesson = deleteLesson;
+
+      document.getElementById("courseForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        try {
+          const payload = {
+            title: document.getElementById("title").value.trim(),
+            description: document.getElementById("description").value.trim(),
+            category_id: Number(document.getElementById("category_id").value),
+            level: document.getElementById("level").value.trim(),
+          };
+
+          if (!courseId) {
+            const data = await api("/api/instructor/courses", { method: "POST", body: payload });
+            alert("Course created (pending approval).");
+
+            const newId = data.course?.id;
+            if (newId) location.href = `./course-edit.html?id=${encodeURIComponent(newId)}`;
+          } else {
+            await api(`/api/instructor/courses/${courseId}`, { method: "PUT", body: payload });
+            alert("Course updated");
+          }
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+
+      document.getElementById("lessonForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!courseId) return alert("Create course first.");
+
+        try {
+          const payload = {
+            title: document.getElementById("lessonTitle").value.trim(),
+            description: document.getElementById("lessonDesc").value.trim(),
+            video_url: document.getElementById("videoUrl").value.trim(),
+            order_index: Number(document.getElementById("orderIndex").value),
+          };
+
+          await api(`/api/instructor/courses/${courseId}/lessons`, {
+            method: "POST",
+            body: payload
+          });
+
+          alert("Lesson added");
+          e.target.reset();
+          loadLessons();
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+
+      (async () => {
+        await requireRole("instructor");
+        document.getElementById("pageTitle").textContent =
+          courseId ? "Edit Course + Lessons" : "Create Course";
+
+        setCourseIdUI(courseId);
+        loadLessons();
+      })().catch(e => alert(e.message));
+    </script>
+  </div>
+</body>
+</html>

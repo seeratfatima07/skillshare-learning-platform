@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Course Reviews</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <nav>
+      <a href="./courses.html">← Back</a>
+      <button class="small" type="button" onclick="logout()">Logout</button>
+    </nav>
+
+    <h2>Course Reviews</h2>
+
+    <div id="box" class="card">Loading...</div>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/guards.js"></script>
+
+    <script>
+      const courseId = new URLSearchParams(location.search).get("id");
+      const box = document.getElementById("box");
+
+      function esc(v) {
+        return String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      (async () => {
+        await requireRole("instructor");
+
+        const data = await api(`/api/instructor/courses/${courseId}/reviews`);
+        const rating = data.rating || {};
+        const reviews = data.reviews || [];
+
+        const avg = rating.avg_rating ?? "0.00";
+        const count = rating.review_count ?? "0";
+
+        if (reviews.length === 0) {
+          box.innerHTML = `
+            <h3>Summary</h3>
+            <p><b>Avg:</b> ${esc(avg)} | <b>Count:</b> ${esc(count)}</p>
+            <div class="card"><p>No reviews yet.</p></div>
+          `;
+          return;
+        }
+
+        box.innerHTML = `
+          <h3>Summary</h3>
+          <p><b>Avg:</b> ${esc(avg)} | <b>Count:</b> ${esc(count)}</p>
+
+          <h3>Reviews</h3>
+          ${reviews.map(r => `
+            <div class="card">
+              <b>${esc(r.student_name)}</b> — ${esc(r.rating)}/5<br/>
+              ${esc(r.comment || "")}<br/>
+              <small>${new Date(r.created_at).toLocaleString()}</small>
+            </div>
+          `).join("")}
+        `;
+      })().catch(e => alert(e.message));
+    </script>
+  </div>
+</body>
+</html>
