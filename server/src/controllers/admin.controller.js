@@ -443,9 +443,9 @@ exports.resolveReport = async (req, res) => {
   }
 };
 
-/**
- *  Admin delete any review
- * DELETE /api/admin/reviews/:id
+/*
+  Admin delete any review
+  /api/admin/reviews/:id
  */
 exports.deleteReviewAdmin = async (req, res) => {
   try {
