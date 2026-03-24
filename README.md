@@ -1,30 +1,26 @@
-# skillshare-learning-platform
-Online learning platform built using Node.js and Express where instructors upload courses and students access them through dashboards.
-
-
-
+# SkillShare Learning Platform
 
 ## Description
-Online learning platform where instructors upload courses and students access them through dashboards.
+SkillShare is an online learning platform where instructors can upload courses and students can access them through personalized dashboards.
 
 ## Tech Stack
-Node.js
-Express.js
-HTML
-CSS
-JavaScript
-POSTGRESQL
+- Node.js
+- Express.js
+- JavaScript
+- HTML
+- CSS
 
 ## Features
-User authentication and authorization
-Course upload
-Course dashboard
-REST API backend
+- Course upload
+- Student dashboard
+- REST API backend
+- Client–server architecture
 
 ## Project Structure
-client/
-server/
+client/ – frontend code  
+server/ – backend API
 
 ## How to Run
+cd server
 npm install
 npm start
