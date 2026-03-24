@@ -13,7 +13,7 @@ Express.js
 HTML
 CSS
 JavaScript
-MongoDB (if used)
+POSTGRESQL
 
 ## Features
 User authentication
