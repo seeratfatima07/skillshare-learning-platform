@@ -16,7 +16,7 @@ JavaScript
 POSTGRESQL
 
 ## Features
-User authentication
+User authentication and authorization
 Course upload
 Course dashboard
 REST API backend
